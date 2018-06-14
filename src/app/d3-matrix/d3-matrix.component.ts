@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 import { AlignerService } from '../aligner.service';
 import { promise } from 'protractor';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-d3-matrix',
@@ -34,8 +35,11 @@ export class D3MatrixComponent implements OnInit,OnChanges {
   private saveButtonFlag:boolean = true;
   @Input() BCV:any;
 
-  constructor(element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
+  constructor(private toastr: ToastrService,element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
        this.d3 = d3Service.getD3();
+       this.toastr.toastrConfig.positionClass = "toast-top-center"
+       this.toastr.toastrConfig.closeButton = true;
+       this.toastr.toastrConfig.progressBar =true;
        
   }     
 
@@ -93,8 +97,7 @@ export class D3MatrixComponent implements OnInit,OnChanges {
     let greekHorizontalWords = d.greek;
 
     d.hinditext.unshift('NULL');
-    let hindiVerticalWords  = d.hinditext; 
-    let greekHorizontalExtraWords = ["G53190G53190G53190G53190G53190G53190G53190G53190","G11610G11610G11610G11610G11610G11610G11610G11610G11610","G25400G25400G25400G25400G25400G25400G25400G25400G25400G25400","G23980G23980G23980G23980G23980G23980G23980G23980G23980G23980G23980","G35880G35880G35880G35880G35880G35880G35880G35880G35880G35880G35880","G30560G30560G30560G30560G30560G30560G30560G30560G30560G30560G30560G30560","G08460G08460G08460G08460G08460G08460G08460","G17220G17220G17220G17220G17220G17220G17220","G27820G27820G27820G27820G27820G27820G27820","G37390","G41000","G14730","G25960G25960G25960G25960G25960G25960G25960","G20030G20030G20030G20030G20030G20030G20030","G35880G35880G35880G35880G35880G35880","G49900G49900G49900G49900G49900G49900G49900","G14730G14730G14730G14730G14730G14730G14730G14730G14730","G23160G23160G23160G23160G23160G23160G23160G23160"];
+    let hindiVerticalWords  = d.hinditext;    
 
     var data = new Array();
     var rowcount = hindiVerticalWords.length;
@@ -116,7 +119,6 @@ export class D3MatrixComponent implements OnInit,OnChanges {
                 hindiVerticalWords: hindiVerticalWords,
                 greekIndexWise: greekHorizontalWords[column] + column + 'column',
                 hindiIndexWise: hindiVerticalWords[row] + row + 'row',
-                greekHorizontalExtraWords: greekHorizontalExtraWords,
                 rawPosss:rawPoss,
                 saveButtonFlag:this.saveButtonFlag
             })
@@ -163,9 +165,19 @@ saveOnClick(){
                      let response:any = data;
                      //console.log(response._body);
                     if(response._body === 'Saved'){
-                        alert('Updation has been done successfully.')
+                        this.toastr.success('Updation has been done successfully.');
                     }
-                 })            
+                 },(error:Response) =>{
+                    if(error.status === 400){
+                      this.toastr.warning("Bad Request Error.")
+                    }
+                    else{
+                      this.toastr.error("An Unexpected Error Occured.")
+                    }
+                    
+                  })            
+
+                 document.getElementById('saveButton').style.display='none';
 }
 
 ngOnInit() {}
@@ -179,12 +191,14 @@ ngOnChanges(changes: SimpleChanges) {
       data.append("bcv",bcv);
       this._http.post('http://127.0.0.1:5000/alignments/view',data)
       .subscribe(data => {  
+          //console.log(data.json())
         this.rawPos = data.json().positionalpairs;    
       var that = this;
       let self = this;
        let d3 = this.d3;
 
        document.getElementById("grid").innerHTML = "";
+       var content = document.getElementById('grid');
       
     var gridData = this.gridData(data.json(),this.rawPos);
   
@@ -195,15 +209,13 @@ ngOnChanges(changes: SimpleChanges) {
    var row = grid.selectAll(".row")
    .data(gridData)
    .enter().append("g")
-   .attr("class","row");
-  
-   var upperColumn = row.selectAll(".upperColumn")
-   .data(function(d:any){return d;})
-   .enter().append("text")
+   .attr("class","row"); 
+ 
   
    var column = row.selectAll(".square")
    .data(function(d:any){return d;})
    .enter().append("rect")
+   .attr("id",function(d:any){return "rect-"+ d.y})
   
    var columnAttributes = column
    .attr("x",function(d:any){return d.x;})
@@ -242,8 +254,8 @@ ngOnChanges(changes: SimpleChanges) {
        .attr('class',"filledsquare");
        d.filled = true;
        d.positionalPairOfApi.push(d.positionalPair);
-        console.log(d.rawPosss);
-        console.log(d.positionalPairOfApi)
+       // console.log(d.rawPosss);
+        //console.log(d.positionalPairOfApi)
         if(d.rawPosss != d.positionalPairOfApi)
         {
             document.getElementById("saveButton").style.display = "";
@@ -294,73 +306,12 @@ ngOnChanges(changes: SimpleChanges) {
       y.style.fontSize = "16px";
       y.style.fill="black";
   })
-  
-  
-  d3.selectAll("text")
-  .data(gridData[0])
-   //.append("text")
-      .attr("transform", function (d:any,i) {
-             var xAxis = d.x + 25;
-                  return "translate(" + xAxis + ",85)rotate(300)" ;
-              })
-      .style("font-size", "16px")
-      .attr("id",function(d:any,i){
-          return d.greekIndexWise;
-      })
-      .text(function(d:any,i){
-           return d.greekHorizontalWords[i];
-      })
-      .on("mouseover", function(d:any,i){
-          d3.select(this).transition()
-          .attr("transform", function (d:any,i) {  
-              var xAxis = d.x + 25;
-              return "translate(" + xAxis + ",85)rotate(300)" ;
-               })
-           tooltip.style("display",null)
-       })
-  
-       .on("mouseout", function(d){
-       
-            tooltip.style("display","none")
-      })
-      .on('mousemove', function(d:any,i){
-      })
-      .on('click',function(d,i)
-      {
-          iframe.style("display",null)
-      })
-  
-   var tooltip  = grid.append("g")
-                  .attr("class",tooltip)
-                  .style("display","none");
-  
-      tooltip.append("text")
-             .attr("x",45)
-             .attr("dy","1.2em")
-             .style("font-size","1.25em")
-  
-  
-  var iframe  = grid.append("g")
-             .attr("class",tooltip)
-             .style("display","none");
-  
-         iframe.append("iframe")
-         .attr("src",'https://www.youtube.com/embed/tgbNymZ7vqY')
-  d3.selectAll(".row")
-  .data(gridData)
-  .append("text")
-      .attr("x", "30")
-      .attr("y", function (d,i) {
-              return d[0].y + 25;
-          })
-          .style("font-size", "16px")
-          .attr("id",function(d,i){
-              return d[0].hindiIndexWise;
-          })
-      .text(function(d,i){
-          return d[0].hindiVerticalWords[i];
-      })
 
+  var upperColumn = row.selectAll(".upperColumn")
+  .data(function(d:any){ 
+    return d;})
+  .enter().append("text")
+  
 
 // For making the svg matrix scrollable
       d3.selectAll("svg")
@@ -375,9 +326,99 @@ ngOnChanges(changes: SimpleChanges) {
         len = (len * 35) + 120;
         return len;
         })
- // Ended Here    
+ // Ended Here   
  
-    });
+ var labell = d3.selectAll(".row")
+ .data(gridData)
+
+ var label = labell.append("text")
+     .attr("x", "30")
+     .attr("y", function (d,i) {
+             return d[0].y + 25;
+         })
+         .style("font-size", "16px")
+         .attr("id",function(d,i){
+             return d[0].hindiIndexWise;
+         })
+     .text(function(d,i){
+         return d[0].hindiVerticalWords[i];
+     })
+
+    //  content.addEventListener('scroll', function(evt) {
+    //    //console.log(  label.nodes()[1]);
+    //    for(var i =0; i<label.nodes().length; i++){
+    //     label.nodes()[i].setAttribute('x', 30 + this.scrollLeft);
+    // }
+    //   }, false)
+
+
+    var labellll =  grid.selectAll("svg")
+    .data(gridData[0])
+     var labelll =   labellll.enter().append("g")
+    var div = d3.select("body")
+    .append("div")
+    .attr("class", "toolTip")
+    .attr("word-wrap","break-word")
+    ;  
+     
+      var labelGreek  = labelll.append("text")
+      
+          .attr("transform", function (d:any,i) {
+                 var xAxis = d.x + 25;
+                      return "translate(" + xAxis + ",85)rotate(300)" ;
+                  })    
+          .style("font-size", "16px")
+          .attr("id",function(d:any,i){
+              return d.greekIndexWise;
+          })
+          .text(function(d:any,i){
+               return d.greekHorizontalWords[i];
+          })
+
+    
+         .on("mouseout", function(d){
+             div.style("display", "none");
+        })
+        .on('mousemove', function(d:any,i){
+             div.style("left", d3.event.pageX+10+"px");
+            div.style("top", d3.event.pageY-25+"px");
+            div.style("display", "inline-block");
+            div.html(function() {
+                return  (d.greekHorizontalWords[i] == 'NULL') ? 'N/A':d.greekHorizontalWords[i]
+            });
+        })
+
+             content.addEventListener('scroll', function(evt) {
+
+                // var elms:any = document.querySelectorAll("[id='rect-100']");
+
+                // for(var i = 0; i < elms.length; i++) 
+                //     elms[i].style.display='none'; 
+            
+                for(var i =0; i<labelGreek.nodes().length; i++){
+                    let labelGreekData:any = gridData[0][i];
+                        var xi:any = labelGreekData.x + 25;                     
+                    (labelGreek.nodes()[i] as  any).setAttribute("transform", "translate(" + xi + "," + (85 + this.scrollTop) +")rotate(300)")
+                    //labelGreek.nodes()[i].setAttribute("style","font-size:20px")
+                                                           
+
+                    // document.getElementById('rect-100').style.display = "none";
+                    // console.log (85 + this.scrollTop)
+
+
+             }
+               }, false)
+
+ 
+    },(error:Response) =>{
+        if(error.status === 404){
+          this.toastr.warning("Data not available")
+        }
+        else{
+          this.toastr.error("An Unexpected Error Occured.")
+        }
+        
+      });
    
   }
 

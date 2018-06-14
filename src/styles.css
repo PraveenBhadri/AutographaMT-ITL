@@ -2,7 +2,11 @@
 @import "~bootstrap/dist/css/bootstrap.css";
 @import "~bootstrap/dist/css/bootstrap.min.css";
 
-body { padding:20px;}
+body { 
+    padding:20px;
+    background: url(./images/bgImage.jpg) 
+    
+}
 
 a {
     text-decoration: none;
@@ -48,4 +52,21 @@ a:hover {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: rgb(85, 85, 85); 
+}
+
+.toolTip {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: absolute;
+    display: none;
+    width: 200px;
+    height: auto;
+    background: none repeat scroll 0 0 white;
+    border: 0 none;
+    border-radius: 8px 8px 8px 8px;
+    box-shadow: -3px 3px 15px #888888;
+    color: black;
+    font: 12px sans-serif;
+    padding: 5px;
+    text-align: center;
+    word-wrap: break-word;
 }

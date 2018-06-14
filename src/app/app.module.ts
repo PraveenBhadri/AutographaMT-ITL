@@ -7,6 +7,10 @@ import { D3Service } from 'd3-ng2-service';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 import { AlignerService } from './aligner.service';
+import { CommonModule } from '@angular/common';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
   declarations: [
@@ -15,7 +19,9 @@ import { AlignerService } from './aligner.service';
     BcvSearchComponent
   ],
   imports: [
-    BrowserModule,HttpModule,FormsModule
+    BrowserModule,HttpModule,FormsModule,CommonModule,
+    BrowserAnimationsModule, 
+    ToastrModule.forRoot()
   ],
   providers: [AlignerService,D3Service],
   bootstrap: [AppComponent]

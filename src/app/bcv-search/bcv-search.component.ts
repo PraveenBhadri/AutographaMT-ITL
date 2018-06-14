@@ -5,6 +5,7 @@ import 'rxjs/add/operator/map';
 import { AlignerService } from '../aligner.service';
 import { promise } from 'protractor';
 import { stringify } from '@angular/compiler/src/util';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-bcv-search',
@@ -21,36 +22,79 @@ export class BcvSearchComponent implements OnInit {
   bookNumber:string;
   verseNumber:string;
   BCV:any;
+  chapterFirstIndex:any;
+  verseFirstIndex:any;
+  bookFirstIndex:any;
 
 
-  constructor(private _http:Http) { }
+  constructor(private toastr: ToastrService,private _http:Http) {
+
+    this.toastr.toastrConfig.positionClass = "toast-top-center"
+    this.toastr.toastrConfig.closeButton = true;
+    this.toastr.toastrConfig.progressBar =true;
+   }
 
 
   ngOnInit() {
+    this.chapterFirstIndex = 0;
+    this.verseFirstIndex = 0;
+    this.bookFirstIndex = 0;
     this._http.get('http://127.0.0.1:5000/alignments/books')
     .subscribe(data => {
       this.Books = data.json().books;
       //console.log (data.json())
+    },(error:Response) =>{
+      if(error.status === 404){
+        this.toastr.warning("Books data not available")
+      }
+      else{
+        this.toastr.error("An Unexpected Error Occured.")
+      }
+      
     })
   }
 
 
   bookChange(x){
+    this.chapterFirstIndex = 0;
+    this.verseFirstIndex = 0;
+    this.verseNumber=stringify(0);
+    this.BCV = null
+
     var data = new FormData();
     data.append("bookname", x);    
     this.bookName = x;
+    //console.log(this.bookName)
+
+    if(this.bookFirstIndex != 0){
     this._http.post('http://127.0.0.1:5000/search/chapternumbers', data)
     .subscribe(data => {
       this.Chapters = data.json().chapter_numbers;
       //console.log (data.json())
+    },(error:Response) =>{
+      if(error.status === 404){
+        this.toastr.warning("Chapter data not available")
+      }
+      else{
+        this.toastr.error("An Unexpected Error Occured.")
+      }
+      
     })
+     }
+     else {
+      this.Chapters = null;
+     }
   }
 
   chapterChange(x:string,y){
+    this.verseFirstIndex = 0;
+    this.verseNumber=stringify(0);
     var data = new FormData();
+    this.BCV = null
     data.append("chapternumber", x);
     data.append("bookname", y);
 
+    if(x != stringify(0)){
     this._http.post('http://127.0.0.1:5000/search/versenumbers',data)
     .subscribe(data => {
       this.Verses = data.json().verse_numbers;
@@ -73,7 +117,18 @@ export class BcvSearchComponent implements OnInit {
       else if(x.length >1) {this.chapterNumber  = '0'+ x}
       else if(x.length === 1) {this.chapterNumber = '00'+ x}  ;
       //console.log(this.chapterNumber)
+    },(error:Response) =>{
+      if(error.status === 404){
+        this.toastr.warning("Verse data not available")
+      }
+      else{
+        this.toastr.error("An Unexpected Error Occured.")
+      }
+      
     })
+  }
+  else 
+  {this.Verses = null }
   }
 
    verseChange(x:string){
@@ -81,11 +136,25 @@ export class BcvSearchComponent implements OnInit {
     else if(x.length >1) {this.verseNumber  = '0'+ x}
     else if(x.length === 1) {this.verseNumber = '00'+ x};
 
+    if(this.verseNumber == '000')
+    {this.BCV = null}
+    else
     this.BCV = this.bookNumber + this.chapterNumber + this.verseNumber;
   }
 
   prevOnclick(){
+    document.getElementById('grid').scrollTop =0;
+    if(document.getElementById("saveButton").style.display != "none"){
+      this.toastr.warning("Kindly click on save to make the updation.")
+    }
+
+    else {
+
+    if(this.verseNumber != '000')
+    {
     document.getElementById("saveButton").style.display = "none";
+    }
+
     if(this.chapterNumber && this.verseNumber){
               
               (Number(this.verseNumber) <= this.Verses.length
@@ -93,6 +162,8 @@ export class BcvSearchComponent implements OnInit {
                ? this.verseNumber = stringify((Number(this.verseNumber) - 1))
                : this.verseNumber
          
+
+              this.verseFirstIndex = Number(this.verseNumber);
             
             
             let U:string = this.verseNumber;
@@ -101,20 +172,43 @@ export class BcvSearchComponent implements OnInit {
             else if(U.length === 1) {this.verseNumber = '00'+ U};
             //console.log(this.verseNumber)
 
-            //console.log('prev' + this.bookNumber + this.chapterNumber + this.verseNumber);
+
+            if(this.verseNumber == '000')
+            {this.BCV = null}
+            else
             this.BCV = this.bookNumber + this.chapterNumber + this.verseNumber;
+
+            //console.log('prev' + this.bookNumber + this.chapterNumber + this.verseNumber);
+            
             //console.log (this.BCV + "  " + "prev")
           }
-            
+        }
   }
 
   nextOnClick(){
+    document.getElementById('grid').scrollTop =0;
+    if(document.getElementById("saveButton").style.display != "none"){
+      this.toastr.warning("Kindly click on save to make the updation.")
+    }
+
+    else {
+
+    //console.log(this.bookNumber + this.chapterNumber)
+    
+    if(this.verseNumber != '000')
+    {
+
     document.getElementById("saveButton").style.display = "none";
+    }
+    //console.log(this.chapterNumber);
+
     (Number(this.verseNumber) < this.Verses.length
     && Number(this.verseNumber) > 0) 
     ? this.verseNumber = stringify((Number(this.verseNumber) + 1))
     : this.verseNumber 
- 
+
+    this.verseFirstIndex = Number(this.verseNumber);
+
     let U:string = this.verseNumber;
     if (U.length > 2){this.verseNumber = U} 
     else if(U.length >1) {this.verseNumber  = '0'+ U}
@@ -122,8 +216,12 @@ export class BcvSearchComponent implements OnInit {
     //console.log(this.verseNumber)
 
     //console.log('prev' + this.bookNumber + this.chapterNumber + this.verseNumber);
+    if(this.verseNumber == '000')
+    {this.BCV = null}
+    else
     this.BCV = this.bookNumber + this.chapterNumber + this.verseNumber;
     //console.log (this.BCV + "  " + "next")
+}
 }
 
 }
