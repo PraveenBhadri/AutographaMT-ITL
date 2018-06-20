@@ -20,6 +20,7 @@ import 'rxjs/add/operator/map';
 import { AlignerService } from '../aligner.service';
 import { promise } from 'protractor';
 import { ToastrService } from 'ngx-toastr';
+import {GlobalUrl} from '../globalUrl';
 
 @Component({
   selector: 'app-d3-matrix',
@@ -35,7 +36,7 @@ export class D3MatrixComponent implements OnInit,OnChanges {
   private saveButtonFlag:boolean = true;
   @Input() BCV:any;
 
-  constructor(private toastr: ToastrService,element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
+  constructor(private ApiUrl:GlobalUrl, private toastr: ToastrService,element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
        this.d3 = d3Service.getD3();
        this.toastr.toastrConfig.positionClass = "toast-top-center"
        this.toastr.toastrConfig.closeButton = true;
@@ -160,7 +161,7 @@ saveOnClick(){
                  }
                 var data = {"bcv":x,"positional_pairs":y};
           
-                   this._http.post('http://127.0.0.1:5000/alignments/edit',data)
+                   this._http.post(this.ApiUrl.getnUpdateBCV,data)
                  .subscribe(data=> {  
                      let response:any = data;
                      //console.log(response._body);
@@ -187,9 +188,9 @@ ngOnChanges(changes: SimpleChanges) {
   this.BCV = bookChapterVerse.currentValue;
 
       let bcv:any = this.BCV; //40001010;
-      var data = new FormData();
-      data.append("bcv",bcv);
-      this._http.post('http://127.0.0.1:5000/alignments/view',data)
+    //   var data = new FormData();
+    //   data.append("bcv",bcv);
+      this._http.get(this.ApiUrl.getnUpdateBCV + '/' + bcv )
       .subscribe(data => {  
           //console.log(data.json())
         this.rawPos = data.json().positionalpairs;    

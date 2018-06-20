@@ -6,6 +6,7 @@ import { AlignerService } from '../aligner.service';
 import { promise } from 'protractor';
 import { stringify } from '@angular/compiler/src/util';
 import { ToastrService } from 'ngx-toastr';
+import {GlobalUrl} from '../globalUrl';
 
 @Component({
   selector: 'app-bcv-search',
@@ -27,7 +28,7 @@ export class BcvSearchComponent implements OnInit {
   bookFirstIndex:any;
 
 
-  constructor(private toastr: ToastrService,private _http:Http) {
+  constructor(private toastr: ToastrService,private _http:Http,private ApiUrl:GlobalUrl) {
 
     this.toastr.toastrConfig.positionClass = "toast-top-center"
     this.toastr.toastrConfig.closeButton = true;
@@ -39,7 +40,7 @@ export class BcvSearchComponent implements OnInit {
     this.chapterFirstIndex = 0;
     this.verseFirstIndex = 0;
     this.bookFirstIndex = 0;
-    this._http.get('http://127.0.0.1:5000/alignments/books')
+    this._http.get(this.ApiUrl.getBooks)
     .subscribe(data => {
       this.Books = data.json().books;
       //console.log (data.json())
@@ -61,13 +62,13 @@ export class BcvSearchComponent implements OnInit {
     this.verseNumber=stringify(0);
     this.BCV = null
 
-    var data = new FormData();
-    data.append("bookname", x);    
+    // var data = new FormData();
+    // data.append("bookname", x);    
     this.bookName = x;
     //console.log(this.bookName)
 
     if(this.bookFirstIndex != 0){
-    this._http.post('http://127.0.0.1:5000/search/chapternumbers', data)
+    this._http.get(this.ApiUrl.getChapters + x)
     .subscribe(data => {
       this.Chapters = data.json().chapter_numbers;
       //console.log (data.json())
@@ -89,13 +90,13 @@ export class BcvSearchComponent implements OnInit {
   chapterChange(x:string,y){
     this.verseFirstIndex = 0;
     this.verseNumber=stringify(0);
-    var data = new FormData();
+    // var data = new FormData();
     this.BCV = null
-    data.append("chapternumber", x);
-    data.append("bookname", y);
+    // data.append("chapternumber", x);
+    // data.append("bookname", y);
 
     if(x != stringify(0)){
-    this._http.post('http://127.0.0.1:5000/search/versenumbers',data)
+    this._http.get(this.ApiUrl.getVerses+ y +'/'+ x)
     .subscribe(data => {
       this.Verses = data.json().verse_numbers;
       // console.log (data.json())

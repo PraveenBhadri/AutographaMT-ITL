@@ -10,6 +10,7 @@ import { AlignerService } from './aligner.service';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import {GlobalUrl} from './globalUrl';
 
 
 @NgModule({
@@ -23,7 +24,7 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserAnimationsModule, 
     ToastrModule.forRoot()
   ],
-  providers: [AlignerService,D3Service],
+  providers: [AlignerService,D3Service,GlobalUrl],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
