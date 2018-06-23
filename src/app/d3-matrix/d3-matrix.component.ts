@@ -36,7 +36,7 @@ export class D3MatrixComponent implements OnInit,OnChanges {
   private rawPos:any;
   private saveButtonFlag:boolean = true;
   private lexiconData:string;
-  private greekPopUp:any
+  private greekPopUp:string[];
   @Input() BCV:any;
 
   constructor(private ApiUrl:GlobalUrl, private toastr: ToastrService,element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
@@ -195,7 +195,7 @@ ngOnChanges(changes: SimpleChanges) {
     //   data.append("bcv",bcv);
       this._http.get(this.ApiUrl.getnUpdateBCV + '/' + bcv )
       .subscribe(data => {  
-          console.log(data.json())
+          //console.log(data.json())
         this.rawPos = data.json().positionalpairs;    
       var that = this;
       let self = this;
@@ -214,17 +214,16 @@ ngOnChanges(changes: SimpleChanges) {
     }
 
     var greekLexiconText = '';
+    var greekArray = new Array();
     for(var l=0;l<data.json().greek.length;l++)
-    {
-        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
-        .subscribe(data => {  
-           // console.log(data.json())
-            this.greekPopUp.push = data.json().definition; 
-        });
-
+    {       
+       self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
+       .subscribe(data => {  
+          // console.log(data.json())
+          greekArray.push(data.json().definition); 
+       });      
        greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
-       //console.log(this.greekPopUp)
-       
+    //    console.log(greekArray)       
     }
 
     document.getElementById('sourceId').innerHTML=hindiLexiconText;
@@ -415,16 +414,13 @@ ngOnChanges(changes: SimpleChanges) {
 
              if (d.greekHorizontalWords[i] != 'NULL')
             {
-            //   self._http.get(self.ApiUrl.getLexicon + '/' + d.greekHorizontalWords[i] )
-            //     .subscribe(data => {  
-            //         console.log(data.json())
-            //         self.lexiconData = data.json().definition; 
-            //     });
-              return  self.greekPopUp[i]; 
-                //return self.lexiconData;
+                console.log( greekArray[i])
+                return greekArray[i];
+            //console.log(greekArray)
+            //return 'not available'
             }
             else{
-              return  'N/A'
+              return 'N/A';
             }
                 
                 //return  (d.greekHorizontalWords[i] == 'NULL') ? 'N/A':d.greekHorizontalWords[i]
