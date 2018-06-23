@@ -3,7 +3,7 @@
 <div class="form-group">
         <div style="width: 20%;display:inline-block;padding: 10px">
         <label> SOURCE </label>
-        <select  class="form-control">
+        <select style="height: 30px;" class="form-control">
                 <option value="0">Engine-1 (Giza)</option>
                 <option value="1">Engine-2 (Efmaral)</option>
         </select>
@@ -12,7 +12,7 @@
 
       <div style="width: 20%;display:inline-block;padding: 10px">
       <label for="book">BOOK</label>
-      <select [(ngModel)]="bookFirstIndex" ngModel name="book" id="book" class="form-control" #book="ngModel" (change)="bookChange(book.value)">
+      <select style="height: 30px;" [(ngModel)]="bookFirstIndex" ngModel name="book" id="book" class="form-control" #book="ngModel" (change)="bookChange(book.value)">
           <option value="0">Select</option>
           <option *ngFor="let book of Books" [value]="book">{{book}}</option>
       </select>
@@ -20,7 +20,7 @@
   
       <div style="width: 20%; display:inline-block;padding: 10px" >
               <label for="chapter">CHAPTER</label>
-              <select [(ngModel)]="chapterFirstIndex" ngModel name="chapter" id="chapter" class="form-control" #chapter="ngModel" (change)="chapterChange(chapter.value,book.value)">
+              <select style="height: 30px;" [(ngModel)]="chapterFirstIndex" ngModel name="chapter" id="chapter" class="form-control" #chapter="ngModel" (change)="chapterChange(chapter.value,book.value)">
                  <option value="0">Select</option>
                   <option *ngFor="let chapter of Chapters" [value]="chapter">{{chapter}}</option>
               </select>
@@ -28,7 +28,7 @@
   
           <div style="width: 20%;display:inline-block;padding: 10px">
                   <label for="verse">VERSE</label>
-                  <select [(ngModel)]="verseFirstIndex" ngModel name="verse" id="verse" class="form-control" #verse="ngModel" (change)="verseChange(verse.value)">
+                  <select style="height: 30px;" [(ngModel)]="verseFirstIndex" ngModel name="verse" id="verse" class="form-control" #verse="ngModel" (change)="verseChange(verse.value)">
                           <option value="0">Select</option>
                   <option *ngFor="let verse of Verses"  [value]="verse">{{verse}}</option>     
                   </select>

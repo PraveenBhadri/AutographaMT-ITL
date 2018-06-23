@@ -21,6 +21,7 @@ import { AlignerService } from '../aligner.service';
 import { promise } from 'protractor';
 import { ToastrService } from 'ngx-toastr';
 import {GlobalUrl} from '../globalUrl';
+import { getHostElement } from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-d3-matrix',
@@ -34,6 +35,8 @@ export class D3MatrixComponent implements OnInit,OnChanges {
   private positionalPairOfApi:any;
   private rawPos:any;
   private saveButtonFlag:boolean = true;
+  private lexiconData:string;
+  private greekPopUp:any
   @Input() BCV:any;
 
   constructor(private ApiUrl:GlobalUrl, private toastr: ToastrService,element: ElementRef, private ngZone: NgZone, d3Service: D3Service,private service: AlignerService,private _http:Http) {
@@ -48,8 +51,8 @@ export class D3MatrixComponent implements OnInit,OnChanges {
   gridData(d:any,rawPoss:any){
     var xpos =100;
     var ypos =100;
-    var width = 35;
-    var height= 35;
+    var width = 30;
+    var height= 30;
     var filled;
 
     var rawpossCount = rawPoss.length;
@@ -192,7 +195,7 @@ ngOnChanges(changes: SimpleChanges) {
     //   data.append("bcv",bcv);
       this._http.get(this.ApiUrl.getnUpdateBCV + '/' + bcv )
       .subscribe(data => {  
-          //console.log(data.json())
+          console.log(data.json())
         this.rawPos = data.json().positionalpairs;    
       var that = this;
       let self = this;
@@ -202,6 +205,30 @@ ngOnChanges(changes: SimpleChanges) {
        var content = document.getElementById('grid');
       
     var gridData = this.gridData(data.json(),this.rawPos);
+
+    var hindiLexiconText = '';
+    for(var m=0;m<data.json().hinditext.length;m++)
+    {
+       hindiLexiconText = hindiLexiconText + ' ' + data.json().hinditext[m];
+       
+    }
+
+    var greekLexiconText = '';
+    for(var l=0;l<data.json().greek.length;l++)
+    {
+        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
+        .subscribe(data => {  
+           // console.log(data.json())
+            this.greekPopUp.push = data.json().definition; 
+        });
+
+       greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
+       //console.log(this.greekPopUp)
+       
+    }
+
+    document.getElementById('sourceId').innerHTML=hindiLexiconText;
+    document.getElementById('targetId').innerHTML=greekLexiconText;
   
     var grid = d3.select("#grid")
     .append("svg")
@@ -380,12 +407,27 @@ ngOnChanges(changes: SimpleChanges) {
          .on("mouseout", function(d){
              div.style("display", "none");
         })
-        .on('mousemove', function(d:any,i){
+        .on('mouseover', function(d:any,i){
              div.style("left", d3.event.pageX+10+"px");
             div.style("top", d3.event.pageY-25+"px");
             div.style("display", "inline-block");
             div.html(function() {
-                return  (d.greekHorizontalWords[i] == 'NULL') ? 'N/A':d.greekHorizontalWords[i]
+
+             if (d.greekHorizontalWords[i] != 'NULL')
+            {
+            //   self._http.get(self.ApiUrl.getLexicon + '/' + d.greekHorizontalWords[i] )
+            //     .subscribe(data => {  
+            //         console.log(data.json())
+            //         self.lexiconData = data.json().definition; 
+            //     });
+              return  self.greekPopUp[i]; 
+                //return self.lexiconData;
+            }
+            else{
+              return  'N/A'
+            }
+                
+                //return  (d.greekHorizontalWords[i] == 'NULL') ? 'N/A':d.greekHorizontalWords[i]
             });
         })
 

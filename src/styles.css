@@ -11,8 +11,9 @@ body {
 a {
     text-decoration: none;
     display: inline-block;
-    padding: 8px 40px;
-    margin:10px
+    padding: 5px 40px;
+    margin:10px;
+    height: 30px;
 }
 
 a:hover {
