@@ -220,7 +220,7 @@ ngOnChanges(changes: SimpleChanges) {
        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
        .subscribe(data => {  
           // console.log(data.json())
-          greekArray.push(data.json().definition + "\n" + data.json().greek_word + "\n"  + data.json().pronunciation + "\n" + data.json().strongs + "\n" + data.json().transliteration); 
+          greekArray.push("Defition:- "+data.json().definition + "<br/>" +"greek_word:- " + data.json().greek_word + "<br/>"  + "pronunciation:- " + data.json().pronunciation + "<br/>" +"strongs:- " + data.json().strongs + "<br/>" +"transliteration:- " + data.json().transliteration); 
        });      
        greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
     //    console.log(greekArray)       
