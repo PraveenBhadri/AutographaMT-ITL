@@ -220,7 +220,7 @@ ngOnChanges(changes: SimpleChanges) {
        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
        .subscribe(data => {  
           // console.log(data.json())
-          greekArray.push(data.json().definition); 
+          greekArray.push(data.json().definition + "\n" + data.json().greek_word + "\n"  + data.json().pronunciation + "\n" + data.json().strongs + "\n" + data.json().transliteration); 
        });      
        greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
     //    console.log(greekArray)       
@@ -414,8 +414,8 @@ ngOnChanges(changes: SimpleChanges) {
 
              if (d.greekHorizontalWords[i] != 'NULL')
             {
-                console.log( greekArray[i])
-                return greekArray[i];
+                console.log( greekArray[i-1])
+                return greekArray[i-1];
             //console.log(greekArray)
             //return 'not available'
             }
