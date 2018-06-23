@@ -410,6 +410,7 @@ ngOnChanges(changes: SimpleChanges) {
              div.style("left", d3.event.pageX+10+"px");
             div.style("top", d3.event.pageY-25+"px");
             div.style("display", "inline-block");
+            div.style("text-align","left")
             div.html(function() {
 
              if (d.greekHorizontalWords[i] != 'NULL')
