@@ -220,7 +220,7 @@ ngOnChanges(changes: SimpleChanges) {
        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
        .subscribe(data => {  
           // console.log(data.json())
-          greekArray.push("Definition:- "+data.json().definition + "<br/>" +"greek_word:- " + data.json().greek_word + "<br/>"  + "pronunciation:- " + data.json().pronunciation + "<br/>" +"strongs:- " + data.json().strongs +" " + "<br/>" +"transliteration:- " + data.json().transliteration); 
+          greekArray.push("<b>English Word</b>:- " + data.json().englishword +"<br/><br/>" + "<b>Definition</b>:- "+data.json().definition + "<br/><br/>" +"<b>greek_word</b>:- " + data.json().greek_word + "<br/><br/>"  + "<b>pronunciation</b>:- " + data.json().pronunciation + "<br/><br/>" +"strongs:- " + data.json().strongs +" " + "<br/><br/>" +"<b>transliteration</b>:- " + data.json().transliteration); 
        });      
        greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
     //    console.log(greekArray)       
@@ -328,6 +328,7 @@ ngOnChanges(changes: SimpleChanges) {
       div.style("top", d3.event.pageY-25+"px");
       div.style("display", "inline-block");
       div.style("text-align","left")
+      div.style("width","400px")
       div.html(function() {
 
        if (d.greekHorizontalWords[i] != 'NULL')
@@ -343,7 +344,7 @@ ngOnChanges(changes: SimpleChanges) {
               //console.log(greekArray[count])
               if(greekArray[count].includes("strongs:- " + removeZero + " ")){ 
                   //console.log(greekArray[count])
-                  return  y.innerHTML + " => " + x.innerHTML + "<br/>" + greekArray[count];
+                  return  "<b>" +  y.innerHTML + "</b>" + " => " + "<b>" + x.innerHTML + "</b>" +"<br/><br/>" + greekArray[count];
           }
           
 
@@ -447,6 +448,7 @@ ngOnChanges(changes: SimpleChanges) {
             div.style("top", d3.event.pageY-25+"px");
             div.style("display", "inline-block");
             div.style("text-align","left")
+            div.style("width","400px")
             div.html(function() {
 
              if (d.greekHorizontalWords[i] != 'NULL')
