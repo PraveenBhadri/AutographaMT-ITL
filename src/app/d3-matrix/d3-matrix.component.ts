@@ -1,4 +1,4 @@
-import { Component, ElementRef, NgZone, OnDestroy, OnInit,Input,  OnChanges, SimpleChanges, SimpleChange, stringify } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit,Input,  OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
 
 import {
   D3Service,
