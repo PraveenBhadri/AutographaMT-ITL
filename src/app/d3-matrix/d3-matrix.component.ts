@@ -1,4 +1,4 @@
-import { Component, ElementRef, NgZone, OnDestroy, OnInit,Input,  OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit,Input,  OnChanges, SimpleChanges, SimpleChange, stringify } from '@angular/core';
 
 import {
   D3Service,
@@ -220,7 +220,7 @@ ngOnChanges(changes: SimpleChanges) {
        self._http.get(self.ApiUrl.getLexicon + '/' + data.json().greek[l])
        .subscribe(data => {  
           // console.log(data.json())
-          greekArray.push("Defition:- "+data.json().definition + "<br/>" +"greek_word:- " + data.json().greek_word + "<br/>"  + "pronunciation:- " + data.json().pronunciation + "<br/>" +"strongs:- " + data.json().strongs + "<br/>" +"transliteration:- " + data.json().transliteration); 
+          greekArray.push("Definition:- "+data.json().definition + "<br/>" +"greek_word:- " + data.json().greek_word + "<br/>"  + "pronunciation:- " + data.json().pronunciation + "<br/>" +"strongs:- " + data.json().strongs +" " + "<br/>" +"transliteration:- " + data.json().transliteration); 
        });      
        greekLexiconText = greekLexiconText + ' ' + data.json().greek[l];
     //    console.log(greekArray)       
@@ -322,7 +322,42 @@ ngOnChanges(changes: SimpleChanges) {
       x.style.fontSize = "20px";
       x.style.fill="#008000";
       y.style.fontSize = "20px";
-      y.style.fill="#008000";
+      y.style.fill="#008000";      
+
+      div.style("left", d3.event.pageX+10+"px");
+      div.style("top", d3.event.pageY-25+"px");
+      div.style("display", "inline-block");
+      div.style("text-align","left")
+      div.html(function() {
+
+       if (d.greekHorizontalWords[i] != 'NULL')
+      {
+         // console.log(Number(d.greekHorizontalWords[i].substring(1,d.greekHorizontalWords[i].length)));
+          let removeZero = Number(d.greekHorizontalWords[i].substring(1,d.greekHorizontalWords[i].length)).toString();
+          if (removeZero.endsWith('0'))
+          {
+             removeZero = removeZero.substring(0,removeZero.length - 1)
+          }
+         // console.log(removeZero)
+          for(let count=0; count < greekArray.length; count++){
+              //console.log(greekArray[count])
+              if(greekArray[count].includes("strongs:- " + removeZero + " ")){ 
+                  //console.log(greekArray[count])
+                  return  y.innerHTML + " => " + x.innerHTML + "<br/>" + greekArray[count];
+          }
+          
+
+          }
+      }
+      else{
+        return y.innerHTML + " => " + x.innerHTML;
+      }
+      });
+
+
+
+
+
    })
   
    .on("mouseout", function(d:any){
@@ -331,7 +366,8 @@ ngOnChanges(changes: SimpleChanges) {
       x.style.fontSize = "16px";
       x.style.fill="black";
       y.style.fontSize = "16px";
-      y.style.fill="black";
+      y.style.fill="black";      
+      div.style("display", "none");
   })
 
   var upperColumn = row.selectAll(".upperColumn")
@@ -415,10 +451,22 @@ ngOnChanges(changes: SimpleChanges) {
 
              if (d.greekHorizontalWords[i] != 'NULL')
             {
-                console.log( greekArray[i-1])
-                return greekArray[i-1];
-            //console.log(greekArray)
-            //return 'not available'
+               // console.log(Number(d.greekHorizontalWords[i].substring(1,d.greekHorizontalWords[i].length)));
+                let removeZero = Number(d.greekHorizontalWords[i].substring(1,d.greekHorizontalWords[i].length)).toString();
+                if (removeZero.endsWith('0'))
+                {
+                   removeZero = removeZero.substring(0,removeZero.length - 1)
+                }
+               // console.log(removeZero)
+                for(let count=0; count < greekArray.length; count++){
+                    //console.log(greekArray[count])
+                    if(greekArray[count].includes("strongs:- " + removeZero + " ")){ 
+                        //console.log(greekArray[count])
+                        return greekArray[count];
+                }
+                
+
+                }
             }
             else{
               return 'N/A';
